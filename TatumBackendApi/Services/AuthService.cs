@@ -13,20 +13,21 @@ namespace TatumBackendApi.Services
 {
     public interface IAuthService
     {
-        // Task<ApiResponse<LoginResponseDto>> LoginAsync(
-        //     LoginRequestDto request,
-        //     CancellationToken ct = default
-        // );
+        
+        Task<ApiResponse<LoginResponseDto>> LoginAsync(
+            LoginRequestDto request,
+            CancellationToken ct = default
+        );
 
         Task<ApiResponse<UserDto>> RegisterAsync(
             RegisterRequestDto request,
             CancellationToken ct = default
         );
 
-        // Task<ApiResponse<UserDto>> VerifyRegistrationOtpAsync(
-        //     ResendRegistrationOtpRequestDto request,
-        //     CancellationToken ct = default
-        // );
+        Task<ApiResponse<UserDto>> VerifyRegistrationOtpAsync(
+            VerifyRegistrationOtpRequestDto request,
+            CancellationToken ct = default
+        );
     }
 
     public class AuthService : IAuthService
@@ -226,9 +227,10 @@ namespace TatumBackendApi.Services
             return Convert.ToBase64String(hash);
         }
 
-        private static bool VerifyPassword(string password, string passwordHash)
+        private static bool VerifyPassword(string password, string? passwordHash)
         {
-            return HashPassword(password) == passwordHash;
+            return !string.IsNullOrWhiteSpace(passwordHash)
+                && HashPassword(password) == passwordHash;
         }
 
         // INVALID CREDENTIALS
@@ -254,6 +256,138 @@ namespace TatumBackendApi.Services
                 CreatedAt = user.CreatedAt,
                 LastLoginAt = user.LastLoginAt
             };
+        }
+        public async Task<ApiResponse<LoginResponseDto>> LoginAsync(LoginRequestDto request, CancellationToken ct = default)
+        {
+            if (string.IsNullOrWhiteSpace(request?.Email))
+            {
+                return ApiResponse<LoginResponseDto>.Fail(
+                    "Email is required.",
+                    new List<ApiError> { new("InvalidEmail", "Email is required.") }
+                );
+            }
+
+            if (string.IsNullOrWhiteSpace(request?.Password))
+            {
+                return ApiResponse<LoginResponseDto>.Fail(
+                    "Password is required.",
+                    new List<ApiError> { new("InvalidPassword", "Password is required.") }
+                );
+            }
+
+            var email = request.Email.Trim().ToLowerInvariant();
+            var password = request.Password.Trim();
+
+            // Fetch User
+
+            var user = await _userRepository.GetByEmailAsync(email);
+
+            // Generic error message prevents username enumeration attacks
+            if (user == null || !VerifyPassword(password, user.PasswordHash))
+            {
+                return ApiResponse<LoginResponseDto>.Fail(
+                    "Invalid email or password.",
+                    new List<ApiError> { new("InvalidCredentials", "Invalid email or password.") }
+                );
+            }
+
+            // Check account status
+
+            // if (!user.IsRegistrationVerified)
+            // {
+            //     return ApiResponse<LoginResponseDto>.Fail(
+            //         "Account verification is pending.",
+            //         new List<ApiError> { new("AccountUnverified", "Please verify your email/phone before logging in.") }
+            //     );
+            // }
+
+            // if (!user.IsActive)
+            // {
+            //     return ApiResponse<LoginResponseDto>.Fail(
+            //         "Account is inactive.",
+            //         new List<ApiError> { new("AccountInactive", "Your account has been deactivated.") }
+            //     );
+            // }
+
+            // Update lastLogin
+
+            user.LastLoginAt = DateTime.UtcNow;
+            await _userRepository.SaveChangesAsync(ct);
+
+            // Response for succesful login
+
+            return ApiResponse<LoginResponseDto>.Ok(
+                new LoginResponseDto
+                {
+                    AccessToken = _jwtService.GenerateAccessToken(user),
+                    ExpiresInSeconds = _settings.AccessTokenMinutes * 60,
+                    User = MapToDto(user)
+                },
+                "Login successful."
+            );
+        }
+
+        public async Task<ApiResponse<UserDto>> VerifyRegistrationOtpAsync(VerifyRegistrationOtpRequestDto request, CancellationToken ct = default)
+        {
+            if (string.IsNullOrWhiteSpace(request?.Email))
+            {
+                return ApiResponse<UserDto>.Fail(
+                    "Email is required.",
+                    new List<ApiError> { new("InvalidEmail", "Email is required.") }
+                );
+            }
+
+            if (string.IsNullOrWhiteSpace(request.Otp))
+            {
+                return ApiResponse<UserDto>.Fail(
+                    "OTP is required.",
+                    new List<ApiError> { new("InvalidOtp", "OTP is required.") }
+                );
+            }
+
+            var email = request.Email.Trim().ToLowerInvariant();
+            var user = await _userRepository.GetByEmailAsync(email);
+
+            if (user == null || user.IsRegistrationVerified)
+            {
+                return ApiResponse<UserDto>.Fail(
+                    "Invalid or expired verification code.",
+                    new List<ApiError> { new("InvalidOtp", "Invalid or expired verification code.") }
+                );
+            }
+
+            if (user.RegistrationOtp != request.Otp.Trim()
+                || user.RegistrationOtpExpiresAt is null
+                || user.RegistrationOtpExpiresAt <= DateTime.UtcNow)
+            {
+                return ApiResponse<UserDto>.Fail(
+                    "Invalid or expired verification code.",
+                    new List<ApiError> { new("InvalidOtp", "Invalid or expired verification code.") }
+                );
+            }
+
+            user.IsRegistrationVerified = true;
+            user.IsActive = true;
+            user.RegistrationOtp = null;
+            user.RegistrationOtpExpiresAt = null;
+            user.UpdatedAt = DateTime.UtcNow;
+
+            await _userRepository.SaveChangesAsync(ct);
+
+            return ApiResponse<UserDto>.Ok(
+                MapToDto(user),
+                "Registration verified successfully."
+            );
+        }
+
+        private async Task<string> GenerateAccountNumberAsync()
+        {
+            while (true)
+            {
+                var accountNumber = RandomNumberGenerator.GetInt32(10000000, 100000000).ToString();
+
+                // var exists = await _accountRepository
+            }
         }
     }
 

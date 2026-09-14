@@ -32,5 +32,6 @@ namespace TatumBackendApi.Data
             // idempotency index removed
             modelBuilder.Entity<RefreshToken>().HasKey(r => r.Id);
         }
+        public DbSet<ProductItem> ProductItems => Set<ProductItem>();
     }
 }
