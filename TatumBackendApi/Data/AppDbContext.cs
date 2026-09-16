@@ -12,7 +12,7 @@ namespace TatumBackendApi.Data
 
         public DbSet<User> Users => Set<User>();
         public DbSet<Account> Accounts => Set<Account>();
-        //public DbSet<Transaction> Transactions => Set<Transactions>();
+        public DbSet<Transaction> Transactions => Set<Transaction>();
         //public DbSet<Transfer> Transfers => Set<Transfer>();
         //idempotency removed per new simplified architecture
         public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();

@@ -10,7 +10,7 @@ using TatumBackendApi.Services;
 namespace TatumBackendApi.Controllers
 {
     [ApiController]
-    [Route("api/Reporting")]
+    [Route("api/[controller]")]
     public class ReportingController : ControllerBase
     {
         private readonly IReportingService _reportingService;

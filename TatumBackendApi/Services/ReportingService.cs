@@ -70,16 +70,17 @@ namespace TatumBackendApi.Services
             var activeUsers = await _context.Users.CountAsync(user => user.IsActive, ct);
             var totalAccounts = await _context.Accounts.CountAsync(ct);
             var totalBalace = await _context.Accounts.SumAsync(account => account.AvailableBalance, ct);
+            var totalTransactions = await _context.Transactions.CountAsync(ct);
             var response = new AdminSummaryDto
             {
                 Period = period.ToString(),
                 FromDate = fromDate,
                 ToDate = toDate.AddTicks(-1),
-                // TotalUsers = totalUsers,
-                // ActiveUsers = activeUsers,
-                // TotalAccounts = totalAccounts,
-                // TotalBalance = totalBalace,
-                // TotalTransactions = 0
+                TotalUsers = totalUsers,
+                ActiveUsers = activeUsers,
+                TotalAccounts = totalAccounts,
+                TotalBalance = totalBalace,
+                TotalTransactions = 0
 
             };
 

@@ -6,6 +6,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 using TatumBackendApi.Auth;
 using TatumBackendApi.Common.Constants;
+using TatumBackendApi.Data;
 using TatumBackendApi.Repositories;
 using TatumBackendApi.Services;
 
@@ -131,6 +132,15 @@ builder.Services.AddScoped<IReportingService, ReportingService>();
 
 
 var app = builder.Build();
+
+app.UseCors("AllowAll");
+using (var scope = app.Services.CreateScope()){
+    var services = scope.ServiceProvider;
+
+    var context = services.GetRequiredService<AppDbContext>();
+
+    await DbSeeder.SeedAsync(context);
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
