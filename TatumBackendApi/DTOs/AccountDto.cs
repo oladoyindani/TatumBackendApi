@@ -16,5 +16,6 @@ namespace TatumBackendApi.DTOs
         public decimal AvailableBalance {get; set;}
         public decimal LedgerBalance {get; set;}
         public string Status {get; set;} = null!;
+        public DateTime CreatedAt { get; set; }
     }
 }

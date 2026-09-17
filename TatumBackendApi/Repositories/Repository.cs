@@ -114,7 +114,8 @@ namespace TatumBackendApi.Repositories
             return new PagedResult<T>
             {
                 Items = items,
-                PageNumber = pageSize,
+                PageNumber = pageNumber,
+                PageSize = pageSize,
                 TotalCount = totalCount,
                 TotalPages = totalPages
             };

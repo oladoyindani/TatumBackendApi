@@ -117,7 +117,9 @@ builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 // builder.Services.AddScoped<IPaymentService, PaymentService>();
 // builder.Services.AddScoped<IServiceRequestService, ServiceRequestService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
-// builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IUserService, UserServices>();
+builder.Services.AddScoped<IAccountService, AccountService>();
+builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 
 // JWT token helper
@@ -129,6 +131,16 @@ builder.Services.AddHttpClient();
 builder.Services.Configure<SmsSettings>(builder.Configuration.GetSection("Sms"));
 builder.Services.AddHttpClient<INotificationService, NotificationService>();
 builder.Services.AddScoped<IReportingService, ReportingService>();
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy.AllowAnyOrigin();
+        policy.AllowAnyHeader();
+        policy.AllowAnyMethod();
+    });
+});
 
 
 var app = builder.Build();

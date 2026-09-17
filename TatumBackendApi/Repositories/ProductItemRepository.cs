@@ -18,16 +18,21 @@ namespace TatumBackendApi.Repositories
             CancellationToken ct = default
         )
         {
+            var pageNumber = pagination.PageNumber < 1 ? 1 : pagination.PageNumber;
             var query = _context.ProductItems.AsNoTracking().Where(item => item.ProductId == productId);
             var totalCount = await query.CountAsync(ct);
-            var totalPages =(int)Math.Ceiling(totalCount / (double)pagination.PageSize);
-            var items = await query.OrderByDescending(item => item.CreatedAt).Skip((pagination.PageNumber -1) * pagination.PageSize)
-                .Take(pagination.PageSize).ToListAsync(ct);
+            var totalPages = (int)Math.Ceiling(totalCount / (double)pagination.PageSize);
+            var items = await query
+                .OrderByDescending(item => item.CreatedAt)
+                .Skip((pageNumber - 1) * pagination.PageSize)
+                .Take(pagination.PageSize)
+                .ToListAsync(ct);
 
             return new PagedResult<ProductItem>
             {
                 Items = items,
-                PageNumber = pagination.PageSize,
+                PageNumber = pageNumber,
+                PageSize = pagination.PageSize,
                 TotalCount = totalCount,
                 TotalPages = totalPages
             };

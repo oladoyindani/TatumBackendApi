@@ -35,7 +35,7 @@ namespace TatumBackendApi.Data
             modelBuilder.Entity<RefreshToken>().HasKey(r => r.Id);
 
             // Transaction
-            modelBuilder.Entity<Entities.Transaction>().HasKey(t => t.Id);
+            modelBuilder.Entity<Transaction>().HasKey(t => t.Id);
 
             // Biller
             modelBuilder.Entity<Biller>().HasKey(b => b.Id);
