@@ -88,7 +88,7 @@ namespace TatumBackendApi.Services
                         "Failed to send SMS.",
                         new List<ApiError>{new("SmsSendFailed", error)});
                 }
-                return ApiResponse<object>.Ok((object?)"SMS sent successfully.");
+                return ApiResponse<object>.Ok("SMS sent successfully.");
             }
             catch (Exception ex)
             {

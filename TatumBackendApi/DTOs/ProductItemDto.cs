@@ -9,10 +9,11 @@ namespace TatumBackendApi.DTOs
     {
         public Guid Id { get; set; }
         public Guid ProductId { get; set; }
+        public string Code { get; set; } = string.Empty;
         public string Name { get; set; } = string.Empty;
         public string? Description { get; set; }
-        public decimal Price { get; set; }
-        public int Quantity { get; set; }
-        public bool IsActive { get; set; }
+        public decimal UnitPrice { get; set; }
+        // public int Quantity { get; set; }
+        // public bool IsActive { get; set; }
     }
 }

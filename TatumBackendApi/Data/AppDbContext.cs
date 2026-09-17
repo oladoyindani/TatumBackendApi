@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System.Reflection.Metadata;
 using TatumBackendApi.Entities;
 
 namespace TatumBackendApi.Data
@@ -19,6 +18,9 @@ namespace TatumBackendApi.Data
         //public DbSet<Order> Orders => Set<Order>();
         //public DbSet<Product> Products {  get; set; }
 
+        // Billing / product entities
+        public DbSet<Biller> Billers => Set<Biller>();
+        public DbSet<Product> Products => Set<Product>();
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -31,6 +33,33 @@ namespace TatumBackendApi.Data
 
             // idempotency index removed
             modelBuilder.Entity<RefreshToken>().HasKey(r => r.Id);
+
+            // Transaction
+            modelBuilder.Entity<Entities.Transaction>().HasKey(t => t.Id);
+
+            // Biller
+            modelBuilder.Entity<Biller>().HasKey(b => b.Id);
+            modelBuilder.Entity<Biller>().Property(b => b.Category).HasConversion<string>();
+            modelBuilder.Entity<Biller>().HasIndex(b => b.Code).IsUnique();
+
+            // Product
+            modelBuilder.Entity<Product>().HasKey(p => p.Id);
+            modelBuilder.Entity<Product>().HasIndex(p => p.Code).IsUnique();
+            modelBuilder.Entity<Product>().Property(p => p.Category).HasConversion<string>();
+            modelBuilder.Entity<Product>()
+                .HasOne(p => p.Biller)
+                .WithMany(b => b.Products)
+                .HasForeignKey(p => p.BillerId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // ProductItem
+            modelBuilder.Entity<ProductItem>().HasKey(pi => pi.Id);
+            modelBuilder.Entity<ProductItem>()
+                .HasOne(pi => pi.Product)
+                .WithMany(p => p.ProductItems)
+                .HasForeignKey(pi => pi.ProductId)
+                .OnDelete(DeleteBehavior.Cascade);
+
         }
         public DbSet<ProductItem> ProductItems => Set<ProductItem>();
     }

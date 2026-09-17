@@ -19,12 +19,12 @@ namespace TatumBackendApi.Services
                 PaginationParameters pagination,
                 TransactionFilterDto? filter = null);
 
-        Task<ApiResponse<TransactionDto>>
-            GetTransactionByIdAsync(Guid id);
+        // Task<ApiResponse<TransactionDto>>
+        //     GetTransactionByIdAsync(Guid id);
 
-        Task<ApiResponse<TransactionSummaryDto>>
-            GetAdminTransactionSummaryAsync(
-                TransactionSummaryFilterDto filter);
+        // Task<ApiResponse<TransactionSummaryDto>>
+        //     GetAdminTransactionSummaryAsync(
+        //         TransactionSummaryFilterDto filter);
 
     }
 }
