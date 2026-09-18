@@ -29,8 +29,17 @@ namespace TatumBackendApi.Services
             using var client = new SmtpClient();
             try
             {
-                await client.ConnectAsync(smtp.Host, smtp.Port, SecureSocketOptions.SslOnConnect, ct);
-                await client.AuthenticateAsync(smtp.Username, smtp.Password, ct);
+                var socketOptions = smtp.EnableSsl
+                    ? SecureSocketOptions.SslOnConnect
+                    : SecureSocketOptions.StartTlsWhenAvailable;
+
+                await client.ConnectAsync(smtp.Host, smtp.Port, socketOptions, ct);
+
+                if (!string.IsNullOrWhiteSpace(smtp.Username) && !string.IsNullOrWhiteSpace(smtp.Password))
+                {
+                    await client.AuthenticateAsync(smtp.Username, smtp.Password, ct);
+                }
+
                 await client.SendAsync(message, ct);
                 await client.DisconnectAsync(true, ct);
                 _logger.LogInformation("Email successfully sent to {Email}", to);
