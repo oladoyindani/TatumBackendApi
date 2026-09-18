@@ -1,0 +1,19 @@
+namespace TatumBackenedApi.Common.Constants;
+
+public enum BillerCategory
+{
+    TeleCommunication,
+    IT,
+    Electricity,
+    CableTv,
+    Internet,
+    Betting,
+    Education,
+    Transport,
+    Insurance,
+    Government,
+    Airtime,
+    Data,
+    Other
+        
+}

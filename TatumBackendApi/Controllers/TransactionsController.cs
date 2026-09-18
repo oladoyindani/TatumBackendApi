@@ -2,19 +2,27 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using TatumBackendApi.Common.Models;
 using TatumBackendApi.DTOs;
 using TatumBackendApi.Services;
 
 namespace TatumBackendApi.Controllers
 {
+    [ApiController]
+    [Authorize]
+    [Route("api/[controller]")]
     public class TransactionsController : ControllerBase
     {
         private readonly ITransactionService _service;
+        private readonly ICurrentUserService _currentUserService;
 
-        public TransactionsController(ITransactionService service)
+        public TransactionsController(ITransactionService service, ICurrentUserService currentUserService)
         {
             _service = service;
+            _currentUserService = currentUserService;
+
         }
 
         [HttpPost("purchase")]
@@ -50,6 +58,30 @@ namespace TatumBackendApi.Controllers
             }
 
             return Ok(response);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetTransactions(
+            [FromQuery] PaginationParameters pagination,
+            [FromQuery] TransactionFilterDto filter)
+        {
+            var isAdmin = _currentUserService.IsAdmin || _currentUserService.IsSuperAdmin;
+
+
+
+            if (!isAdmin)
+            {
+               if(_currentUserService.UserId == Guid.Empty)
+                {
+                    return Unauthorized();
+                }
+
+               filter.UserId = _currentUserService.UserId;
+            }
+
+            var response = await _service.GetTransactionsAsync(pagination, filter);
+
+            return response.Success ? Ok(response) : BadRequest(response);
         }
     }
 }

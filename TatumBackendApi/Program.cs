@@ -102,7 +102,10 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 // Repository pattern - register repositories and fUnit OfWork
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IAccountRepository, AccountRepository>();
-// builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
+builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
+builder.Services.AddScoped<IProductRepository, ProductRepository>();
+builder.Services.AddScoped<IProductItemRepository, ProductItemRepository>();
+builder.Services.AddScoped<IBillerRepository, BillerRepository>();
 // builder.Services.AddScoped<ITrasferRepository, TransferRepository>();
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 // builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
@@ -119,6 +122,9 @@ builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<IUserService, UserServices>();
 builder.Services.AddScoped<IAccountService, AccountService>();
+builder.Services.AddScoped<IBillerService, BillerService>();
+builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<ITransactionService, TransactionService>();
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 
@@ -179,4 +185,4 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-app.Run();
+r
